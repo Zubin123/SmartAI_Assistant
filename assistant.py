@@ -5,11 +5,14 @@ from langchain.agents.agent_types import AgentType
 from langchain.callbacks import StdOutCallbackHandler
 from tools import calculator, wiki_search
 from logger_config import setup_logger
+from memory import AssistantMemory   
 
 # Initialize the local LLM
 llm = ChatOllama(model="mistral")
 # Setup logger
 logger = setup_logger()
+memory = AssistantMemory()
+
 # Tools
 tools = [
     Tool(
@@ -40,18 +43,26 @@ agent = initialize_agent(
 # REPL loop
 print("🤖 Local Smart Assistant (type 'exit' to quit)")
 
+# Your usual REPL
 while True:
     query = input("You: ")
     if query.lower() in ["exit", "quit"]:
         break
 
     logger.info(f"User Query: {query}")
-    
-    try:
-        response = agent.run(query)
-        logger.info(f"Assistant Response: {response}")
-    except Exception as e:
-        response = f"Error: {str(e)}"
-        logger.error(f"Assistant Error: {str(e)}")
 
-    print(f"Assistant: {response}")
+    # 🔁 Check if the assistant remembers this
+    remembered_response = memory.recall(query)
+    if remembered_response:
+        print(f"Assistant (from memory): {remembered_response}")
+        logger.info(f"Assistant (memory): {remembered_response}")
+    else:
+        try:
+            response = agent.invoke(query)
+            print(f"Assistant: {response}")
+            logger.info(f"Assistant Response: {response}")
+            memory.remember(query, response)  # ✅ Store response
+        except Exception as e:
+            response = f"Error: {str(e)}"
+            print(response)
+            logger.error(f"Assistant Error: {str(e)}")
