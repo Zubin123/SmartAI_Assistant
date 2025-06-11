@@ -1,2 +1,0 @@
-2025-06-11 13:05:03,467 - INFO - User Query: what is 3+2*6/2, also who is captain of RCB
-2025-06-11 13:18:34,049 - INFO - Assistant Response: I am unable to answer the given question fully because it requires more specific and up-to-date information about the Royal Challengers Bangalore team and a corrected mathematical expression.
