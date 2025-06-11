@@ -4,10 +4,12 @@ from langchain.tools import Tool
 from langchain.agents.agent_types import AgentType
 from langchain.callbacks import StdOutCallbackHandler
 from tools import calculator, wiki_search
+from logger_config import setup_logger
 
 # Initialize the local LLM
 llm = ChatOllama(model="mistral")
-
+# Setup logger
+logger = setup_logger()
 # Tools
 tools = [
     Tool(
@@ -42,5 +44,14 @@ while True:
     query = input("You: ")
     if query.lower() in ["exit", "quit"]:
         break
-    response = agent.invoke(query)  # ✅ correct method
+
+    logger.info(f"User Query: {query}")
+    
+    try:
+        response = agent.run(query)
+        logger.info(f"Assistant Response: {response}")
+    except Exception as e:
+        response = f"Error: {str(e)}"
+        logger.error(f"Assistant Error: {str(e)}")
+
     print(f"Assistant: {response}")
