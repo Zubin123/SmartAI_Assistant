@@ -1,17 +1,23 @@
+# logger_config.py
 import logging
+import os
 
-def setup_logger(name="assistant_logger", log_file="assistant_log.txt", level=logging.INFO):
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+def setup_logger():
+    logger = logging.getLogger("assistant_logger")
 
-    handler = logging.FileHandler(log_file)
-    handler.setFormatter(formatter)
+    if not logger.hasHandlers():
+        logger.setLevel(logging.INFO)
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.addHandler(handler)
+        # Create log directory if not exists
+        log_path = "assistant_log.txt"
+        log_dir = os.path.dirname(log_path)
+        if log_dir and not os.path.exists(log_dir):
+            os.makedirs(log_dir)
 
-    # Prevent duplicate logs in some environments
-    if not logger.handlers:
-        logger.addHandler(handler)
+        file_handler = logging.FileHandler(log_path)
+        formatter = logging.Formatter('%(asctime)s — %(levelname)s — %(message)s')
+        file_handler.setFormatter(formatter)
+
+        logger.addHandler(file_handler)
 
     return logger
